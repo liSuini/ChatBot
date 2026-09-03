@@ -97,14 +97,14 @@ T01 (骨架+DB)
 
 **Blocked by:** T01
 
-**Status:** ready-for-agent
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `llm/schemas.py` (LLMMessage / ChatResult 数据结构)
-- [ ] 后端: 实现 `llm/base.py` (LLMProvider ABC: chat / stream_chat / embed / embed_batch)
-- [ ] 后端: 实现 `llm/providers/mock.py` (stream_chat 逐字返回"你好世界"，embed 返回 1536 维固定向量)
-- [ ] 后端: 实现 `llm/providers/openai_provider.py` (httpx 调 OpenAI 兼容 API，支持流式)
-- [ ] 后端: 实现 `llm/factory.py` (单例缓存 + get_provider(name) + get_available_providers())
-- [ ] 后端: 测试 — 工厂返回正确类型、stream_chat yields tokens、embed 返回正确维度、embed_batch
+- [x] 后端: 实现 `llm/schemas.py` (LLMMessage / ChatResult 数据结构)
+- [x] 后端: 实现 `llm/base.py` (LLMProvider ABC: chat / stream_chat / embed / embed_batch)
+- [x] 后端: 实现 `llm/providers/mock.py` (stream_chat 逐字返回"你好世界"，embed 返回 1536 维固定向量)
+- [x] 后端: 实现 `llm/providers/openai_provider.py` (httpx 调 OpenAI 兼容 API，支持流式)
+- [x] 后端: 实现 `llm/factory.py` (单例缓存 + get_provider(name) + get_available_providers())
+- [x] 后端: 测试 — 工厂返回正确类型、stream_chat yields tokens、embed 返回正确维度、embed_batch (13 项，OpenAI 解析逻辑用 MockTransport 覆盖)
 
 ---
 
