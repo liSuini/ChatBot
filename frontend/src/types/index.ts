@@ -5,7 +5,8 @@ export interface User {
 
 export interface AuthResponse {
   access_token: string
-  refresh_token: string
+  // 注册接口不返回 refresh_token，登录接口返回
+  refresh_token?: string
   token_type: string
   user: User
 }

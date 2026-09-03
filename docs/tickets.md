@@ -73,21 +73,21 @@ T01 (骨架+DB)
 
 **Blocked by:** T01
 
-**Status:** ready-for-agent
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `core/security.py` (hash_password / verify_password / create_access_token / create_refresh_token / verify_token)
-- [ ] 后端: 实现 `services/auth_service.py` (register / login，用户名唯一校验)
-- [ ] 后端: 实现 `deps/auth.py` (get_current_user FastAPI 依赖)
-- [ ] 后端: 实现 `schemas/auth.py` (RegisterRequest / LoginRequest 响应模型)
-- [ ] 后端: 实现 `api/v1/auth.py` (POST /auth/register, POST /auth/login, GET /auth/me)
-- [ ] 后端: 注册路由到 main.py，统一异常处理器 (409/401)
-- [ ] 后端: 测试 — 注册成功/重复注册/登录成功/密码错误/无token访问me/有token访问me
-- [ ] 前端: 实现 `stores/authStore.ts` (token/user 状态 + persist 持久化)
-- [ ] 前端: 实现 `services/api.ts` (Axios 实例 + 请求拦截器加 JWT + 401 跳登录)
-- [ ] 前端: 实现 `services/authApi.ts` (register / login / me 调用)
-- [ ] 前端: 实现 `pages/Login.tsx` (Ant Design Form，登录/注册切换，成功跳转 /chat)
-- [ ] 前端: 实现 `layouts/ChatLayout.tsx` ProtectedRoute (未登录重定向 /login)
-- [ ] 验证: 浏览器中 注册→登录→跳转聊天页→刷新仍登录→退出→跳登录页
+- [x] 后端: 实现 `core/security.py` (hash_password / verify_password / create_access_token / create_refresh_token / verify_token)
+- [x] 后端: 实现 `services/auth_service.py` (register / login，用户名唯一校验)
+- [x] 后端: 实现 `deps/auth.py` (get_current_user FastAPI 依赖)
+- [x] 后端: 实现 `schemas/auth.py` (RegisterRequest / LoginRequest 响应模型)
+- [x] 后端: 实现 `api/v1/auth.py` (POST /auth/register, POST /auth/login, GET /auth/me)
+- [x] 后端: 注册路由到 main.py，统一异常处理器 (409/401)
+- [x] 后端: 测试 — 注册成功/重复注册/登录成功/密码错误/无token访问me/有token访问me (12/12 通过)
+- [x] 前端: 实现 `stores/authStore.ts` (token/user 状态 + persist 持久化)
+- [x] 前端: 实现 `services/api.ts` (Axios 实例 + 请求拦截器加 JWT + 401 跳登录)
+- [x] 前端: 实现 `services/authApi.ts` (register / login / me 调用)
+- [x] 前端: 实现 `pages/Login.tsx` (Ant Design Form，登录/注册切换，成功跳转 /chat)
+- [x] 前端: 实现 `layouts/ChatLayout.tsx` ProtectedRoute (未登录重定向 /login)
+- [x] 验证: 浏览器中 注册→登录→跳转聊天页→刷新仍登录→退出→跳登录页 (5/5 通过)
 
 ---
 
