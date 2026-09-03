@@ -181,16 +181,16 @@ T01 (骨架+DB)
 
 **Blocked by:** T05
 
-**Status:** pending (等待 T05 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 前端: 实现 `components/chat/MarkdownRenderer.tsx` (markdown-it 实例 + highlight.js 集成)
-- [ ] 前端: markdown-it 配置: html=false (防 XSS)、linkify=true、typographer=true
-- [ ] 前端: highlight.js 配置: 常用语言 (js/ts/python/bash/json/sql/html/css)
-- [ ] 前端: 流式模式: 直接渲染 streamingContent (可能不完整的 markdown)
-- [ ] 前端: 完成模式: 完整渲染最终内容，确保代码块、表格等正确闭合
-- [ ] 前端: 样式: 代码块背景色、行内代码样式、表格边框、链接颜色
-- [ ] 前端: 实现 `components/chat/StreamingCursor.tsx` (流式光标动画)
-- [ ] 验证: AI 回复含代码块→正确高亮、含表格→正确渲染、流式→增量显示
+- [x] 前端: 实现 `components/chat/MarkdownRenderer.tsx` (markdown-it 实例 + highlight.js 集成)
+- [x] 前端: markdown-it 配置: html=false (防 XSS)、linkify=true、typographer=true
+- [x] 前端: highlight.js 配置: 常用语言 (js/ts/python/bash/json/sql/html/css)
+- [x] 前端: 流式模式: 直接渲染 streamingContent (可能不完整的 markdown)
+- [x] 前端: 完成模式: 完整渲染最终内容，确保代码块、表格等正确闭合
+- [x] 前端: 样式: 代码块背景色、行内代码样式、表格边框、链接颜色
+- [x] 前端: 实现 `components/chat/StreamingCursor.tsx` (流式光标动画)
+- [x] 验证: AI 回复含代码块→正确高亮、含表格→正确渲染、流式→增量显示 (DOM 验证 p/h2/table/pre.hljs/ul/blockquote/code 全部正确渲染, 无控制台错误)
 
 ---
 

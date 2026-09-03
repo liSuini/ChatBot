@@ -3,6 +3,8 @@ import { Input, Button } from 'antd'
 import { EditOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { Message as MessageType } from '../../types'
 import { useChatStore } from '../../stores/chatStore'
+import MarkdownRenderer from './MarkdownRenderer'
+import StreamingCursor from './StreamingCursor'
 
 interface Props {
   message: MessageType
@@ -51,26 +53,27 @@ export default function MessageBubble({ message, conversationId, streaming }: Pr
 
   return (
     <div style={{ margin: '8px 0', textAlign: isUser ? 'right' : 'left' }}>
-      <span
+      <div
         style={{
           background: isUser ? '#e6f4ff' : '#f5f5f5',
           padding: '8px 12px',
           borderRadius: 8,
           display: 'inline-block',
           maxWidth: '70%',
-          whiteSpace: 'pre-wrap',
           textAlign: 'left',
           wordBreak: 'break-word',
+          ...(isUser ? { whiteSpace: 'pre-wrap' } : {}),
         }}
       >
-        {message.content}
-        {streaming && (
-          <span style={{
-            display: 'inline-block', width: 6, height: 16, background: '#999',
-            marginLeft: 2, animation: 'blink 1s step-end infinite', verticalAlign: 'text-bottom',
-          }} />
+        {isUser ? (
+          message.content
+        ) : (
+          <div className="markdown-body">
+            <MarkdownRenderer content={message.content} />
+            {streaming && <StreamingCursor />}
+          </div>
         )}
-      </span>
+      </div>
       {!streaming && !isStreaming && (
         <div style={{ marginTop: 2, display: 'flex', gap: 8, justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
           {isUser ? (
