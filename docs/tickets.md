@@ -50,20 +50,20 @@ T01 (骨架+DB)
 
 **Blocked by:** 无（可立即开始）
 
-**Status:** ready-for-agent
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 创建 pyproject.toml，安装全部依赖 (FastAPI/SQLAlchemy/Alembic/aiomysql 等)
-- [ ] 后端: 实现 `app/core/config.py` (pydantic-settings 配置类，读取 .env)
-- [ ] 后端: 实现 `app/core/database.py` (异步引擎 + Session 工厂 + DeclarativeBase)
-- [ ] 后端: 创建 5 个 ORM 模型 (User/Conversation/Message/Document/DocumentChunk)
-- [ ] 后端: 初始化 Alembic，生成并运行初始迁移 (5 张表 + 索引 + 外键)
-- [ ] 后端: 创建 `app/main.py` 含 `/health` 端点，启动验证通过
-- [ ] 后端: 创建 `app/core/exceptions.py` 统一异常体系
-- [ ] 前端: Vite + React + TS 脚手架，安装 antd/zustand/axios/react-router-dom/markdown-it/highlight.js
-- [ ] 前端: 配置 Vite 代理 (/api → localhost:8000)
-- [ ] 前端: 创建路由结构 (Login/Chat/Documents + ChatLayout)
-- [ ] 前端: 创建 `types/index.ts` 全部 TypeScript 类型定义
-- [ ] 验证: 后端 `http://localhost:8000/health` 返回 ok，前端 `http://localhost:5173` 可访问
+- [x] 后端: 创建 pyproject.toml，安装全部依赖 (FastAPI/SQLAlchemy/Alembic/aiomysql 等)
+- [x] 后端: 实现 `app/core/config.py` (pydantic-settings 配置类，读取 .env)
+- [x] 后端: 实现 `app/core/database.py` (异步引擎 + Session 工厂 + DeclarativeBase)
+- [x] 后端: 创建 5 个 ORM 模型 (User/Conversation/Message/Document/DocumentChunk)
+- [x] 后端: 初始化 Alembic，生成并运行初始迁移 (5 张表 + 索引 + 外键)
+- [x] 后端: 创建 `app/main.py` 含 `/health` 端点，启动验证通过
+- [x] 后端: 创建 `app/core/exceptions.py` 统一异常体系
+- [x] 前端: Vite + React + TS 脚手架，安装 antd/zustand/axios/react-router-dom/markdown-it/highlight.js
+- [x] 前端: 配置 Vite 代理 (/api → localhost:8010，8000 被本机其他项目占用)
+- [x] 前端: 创建路由结构 (Login/Chat/Documents + ChatLayout)
+- [x] 前端: 创建 `types/index.ts` 全部 TypeScript 类型定义
+- [x] 验证: 后端 `http://localhost:8010/health` 返回 ok (4 项冒烟测试通过)，前端 `http://localhost:5173` 可访问
 
 ---
 
