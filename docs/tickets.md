@@ -135,24 +135,24 @@ T01 (骨架+DB)
 
 **Blocked by:** T03, T04
 
-**Status:** pending (等待 T03, T04 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `services/chat_service.py` 消息部分 (save_user_message / build_context / save_assistant_message + 取消标志位)
-- [ ] 后端: 实现上下文截断策略 (system prompt + 最近 20 条，parent_message_id IS NULL)
-- [ ] 后端: 实现 `api/v1/messages.py` (POST /conversations/{cid}/messages，SSE 事件流 start/token/done/error)
-- [ ] 后端: SSE 响应包含 `X-Accel-Buffering: no` 头，JSON 中文不转义
-- [ ] 后端: 实现 `api/v1/messages.py` POST /stop 端点 (设置取消标志，部分内容存库)
-- [ ] 后端: 实现 `middleware/rate_limit.py` (slowapi，LLM 接口 20次/分钟)
-- [ ] 后端: 测试 — 发送消息收到 SSE 事件 (start/token/done)、消息持久化验证、停止生成验证
-- [ ] 前端: 实现 `utils/sse-parser.ts` (SSE 协议解析：按 \n\n 分割，event/data 行提取，buffer 拼接)
-- [ ] 前端: 实现 `hooks/useSSE.ts` (fetch + ReadableStream + AbortController，onStart/onToken/onDone/onError 回调)
-- [ ] 前端: 实现 `components/chat/InputArea.tsx` (自适应高度、回车发送、Shift+回车换行、流式中发送变停止)
-- [ ] 前端: 实现 `components/chat/MessageBubble.tsx` (用户右对齐/AI左对齐、流式内容追加)
-- [ ] 前端: 实现 `components/chat/MessageList.tsx` (消息列表渲染、流式消息追加)
-- [ ] 前端: 实现 `components/chat/ChatWindow.tsx` (组合 MessageList + InputArea)
-- [ ] 前端: 实现 `pages/Chat.tsx` (组合 ChatWindow + useSSE + chatStore)
-- [ ] 前端: chatStore 追加流式状态 (isStreaming / streamingContent / appendToken / finishStreaming)
-- [ ] 验证: 浏览器中 发送消息→看到逐字流式回复→停止生成→部分内容保留→消息持久化
+- [x] 后端: 实现 `services/chat_service.py` 消息部分 (save_user_message / build_context / save_assistant_message + 取消标志位)
+- [x] 后端: 实现上下文截断策略 (system prompt + 最近 20 条，parent_message_id IS NULL)
+- [x] 后端: 实现 `api/v1/messages.py` (POST /conversations/{cid}/messages，SSE 事件流 start/token/done/error)
+- [x] 后端: SSE 响应包含 `X-Accel-Buffering: no` 头，JSON 中文不转义
+- [x] 后端: 实现 `api/v1/messages.py` POST /stop 端点 (设置取消标志，部分内容存库)
+- [x] 后端: 实现 `middleware/rate_limit.py` (slowapi，LLM 接口 20次/分钟)
+- [x] 后端: 测试 — 发送消息收到 SSE 事件 (start/token/done)、消息持久化验证、停止生成验证
+- [x] 前端: 实现 `utils/sse-parser.ts` (SSE 协议解析：按 \n\n 分割，event/data 行提取，buffer 拼接)
+- [x] 前端: 实现 `hooks/useSSE.ts` (fetch + ReadableStream + AbortController，onStart/onToken/onDone/onError 回调)
+- [x] 前端: 实现 `components/chat/InputArea.tsx` (自适应高度、回车发送、Shift+回车换行、流式中发送变停止)
+- [x] 前端: 实现 `components/chat/MessageBubble.tsx` (用户右对齐/AI左对齐、流式内容追加)
+- [x] 前端: 实现 `components/chat/MessageList.tsx` (消息列表渲染、流式消息追加)
+- [x] 前端: 实现 `components/chat/ChatWindow.tsx` (组合 MessageList + InputArea)
+- [x] 前端: 实现 `pages/Chat.tsx` (组合 ChatWindow + useSSE + chatStore)
+- [x] 前端: chatStore 追加流式状态 (isStreaming / streamingContent / appendToken / finishStreaming)
+- [x] 验证: 浏览器中 发送消息→看到逐字流式回复→停止生成→部分内容保留→消息持久化
 
 ---
 

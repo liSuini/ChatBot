@@ -24,3 +24,7 @@ export async function renameConversation(id: number, title: string): Promise<Con
 export async function deleteConversation(id: number): Promise<void> {
   await api.delete(`/conversations/${id}`)
 }
+
+export async function stopGeneration(conversationId: number): Promise<void> {
+  await api.post(`/conversations/${conversationId}/stop`)
+}

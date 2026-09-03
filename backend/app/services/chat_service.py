@@ -5,11 +5,16 @@ from sqlalchemy.orm import selectinload
 from app.core.config import settings
 from app.core.exceptions import NotFoundError
 from app.llm.factory import get_provider
+from app.llm.schemas import LLMMessage
 from app.models.conversation import Conversation
+from app.models.message import Message
+
+# 模块级取消标志：{conversation_id: True}
+_cancel_flags: dict[int, bool] = {}
 
 
 class ChatService:
-    """会话与消息领域服务（T04 会话部分；消息/SSE 部分在 T05 扩展）"""
+    """会话与消息领域服务"""
 
     def __init__(self, db: AsyncSession):
         self.db = db
@@ -71,3 +76,70 @@ class ChatService:
         if not conv:
             raise NotFoundError("会话不存在")
         return conv
+
+    # ---------- 消息 ----------
+
+    async def save_user_message(
+        self, user_id: int, conversation_id: int, content: str
+    ) -> Message:
+        """保存用户消息，返回 Message 实例"""
+        await self._get_owned(user_id, conversation_id)
+        msg = Message(
+            conversation_id=conversation_id,
+            role="user",
+            content=content,
+            parent_message_id=None,
+        )
+        self.db.add(msg)
+        await self.db.commit()
+        await self.db.refresh(msg)
+        return msg
+
+    async def build_context(self, conversation_id: int) -> list[LLMMessage]:
+        """构建 LLM 上下文：system prompt + 最近 20 条消息"""
+        result = await self.db.execute(
+            select(Conversation).where(Conversation.id == conversation_id)
+        )
+        conv = result.scalar_one()
+        messages_result = await self.db.execute(
+            select(Message)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.id.desc())
+            .limit(20)
+        )
+        msgs = list(reversed(messages_result.scalars().all()))
+        context: list[LLMMessage] = []
+        if conv.system_prompt:
+            context.append(LLMMessage(role="system", content=conv.system_prompt))
+        context.extend(LLMMessage(role=m.role, content=m.content) for m in msgs)
+        return context
+
+    async def save_assistant_message(
+        self, conversation_id: int, content: str, tokens: int = 0
+    ) -> Message:
+        """保存 AI 回复消息"""
+        msg = Message(
+            conversation_id=conversation_id,
+            role="assistant",
+            content=content,
+            tokens=tokens,
+            parent_message_id=None,
+        )
+        self.db.add(msg)
+        await self.db.commit()
+        await self.db.refresh(msg)
+        return msg
+
+    # ---------- 取消标志 ----------
+
+    @staticmethod
+    def request_cancel(conversation_id: int) -> None:
+        _cancel_flags[conversation_id] = True
+
+    @staticmethod
+    def is_cancelled(conversation_id: int) -> bool:
+        return _cancel_flags.get(conversation_id, False)
+
+    @staticmethod
+    def clear_cancel(conversation_id: int) -> None:
+        _cancel_flags.pop(conversation_id, None)

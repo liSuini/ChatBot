@@ -6,18 +6,29 @@ interface ChatState {
   conversations: Conversation[]
   currentId: number | null
   messagesMap: Record<number, Message[]>
+  // 流式状态
+  isStreaming: boolean
+  streamingContent: string
+  // 会话操作
   loadConversations: () => Promise<void>
   selectConversation: (id: number) => Promise<void>
   createConversation: (modelProvider: string) => Promise<void>
   renameConversation: (id: number, title: string) => Promise<void>
   deleteConversation: (id: number) => Promise<void>
   setMessages: (conversationId: number, messages: Message[]) => void
+  // 流式操作
+  startStreaming: (conversationId: number, userMessage: Message) => void
+  appendToken: (token: string) => void
+  finishStreaming: (conversationId: number, assistantMessage: Message) => void
+  stopStreaming: () => void
 }
 
 export const useChatStore = create<ChatState>()((set, get) => ({
   conversations: [],
   currentId: null,
   messagesMap: {},
+  isStreaming: false,
+  streamingContent: '',
 
   loadConversations: async () => {
     const conversations = await chatApi.listConversations()
@@ -26,7 +37,6 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   selectConversation: async (id) => {
     set({ currentId: id })
-    // 首次选中时拉取会话详情（含消息历史）
     if (get().messagesMap[id] === undefined) {
       const detail = await chatApi.getConversation(id)
       set((s) => ({ messagesMap: { ...s.messagesMap, [id]: detail.messages ?? [] } }))
@@ -57,7 +67,6 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       const conversations = s.conversations.filter((c) => c.id !== id)
       const messagesMap = { ...s.messagesMap }
       delete messagesMap[id]
-      // 删除当前会话时自动选中列表第一个
       const currentId = s.currentId === id ? (conversations[0]?.id ?? null) : s.currentId
       return { conversations, messagesMap, currentId }
     })
@@ -65,4 +74,30 @@ export const useChatStore = create<ChatState>()((set, get) => ({
 
   setMessages: (conversationId, messages) =>
     set((s) => ({ messagesMap: { ...s.messagesMap, [conversationId]: messages } })),
+
+  startStreaming: (conversationId, userMessage) =>
+    set((s) => ({
+      isStreaming: true,
+      streamingContent: '',
+      messagesMap: {
+        ...s.messagesMap,
+        [conversationId]: [...(s.messagesMap[conversationId] ?? []), userMessage],
+      },
+    })),
+
+  appendToken: (token) =>
+    set((s) => ({ streamingContent: s.streamingContent + token })),
+
+  finishStreaming: (conversationId, assistantMessage) =>
+    set((s) => ({
+      isStreaming: false,
+      streamingContent: '',
+      messagesMap: {
+        ...s.messagesMap,
+        [conversationId]: [...(s.messagesMap[conversationId] ?? []), assistantMessage],
+      },
+    })),
+
+  stopStreaming: () =>
+    set({ isStreaming: false, streamingContent: '' }),
 }))
