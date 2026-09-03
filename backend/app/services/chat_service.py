@@ -115,7 +115,8 @@ class ChatService:
         return context
 
     async def save_assistant_message(
-        self, conversation_id: int, content: str, tokens: int = 0
+        self, conversation_id: int, content: str, tokens: int = 0,
+        parent_message_id: int | None = None,
     ) -> Message:
         """保存 AI 回复消息"""
         msg = Message(
@@ -123,12 +124,62 @@ class ChatService:
             role="assistant",
             content=content,
             tokens=tokens,
-            parent_message_id=None,
+            parent_message_id=parent_message_id,
         )
         self.db.add(msg)
         await self.db.commit()
         await self.db.refresh(msg)
         return msg
+
+    async def save_user_message_with_parent(
+        self, user_id: int, conversation_id: int, content: str, parent_id: int
+    ) -> Message:
+        """编辑重发：保存新 user 消息，parent 指向原 user 消息"""
+        await self._get_owned(user_id, conversation_id)
+        msg = Message(
+            conversation_id=conversation_id,
+            role="user",
+            content=content,
+            parent_message_id=parent_id,
+        )
+        self.db.add(msg)
+        await self.db.commit()
+        await self.db.refresh(msg)
+        return msg
+
+    async def get_message(self, user_id: int, conversation_id: int, message_id: int) -> Message:
+        """获取消息，校验会话归属"""
+        await self._get_owned(user_id, conversation_id)
+        result = await self.db.execute(
+            select(Message).where(
+                Message.id == message_id,
+                Message.conversation_id == conversation_id,
+            )
+        )
+        msg = result.scalar_one_or_none()
+        if not msg:
+            raise NotFoundError("消息不存在")
+        return msg
+
+    async def build_context_before(self, conversation_id: int, before_id: int) -> list[LLMMessage]:
+        """构建上下文：给定消息之前的所有消息（用于重新生成/编辑重发）"""
+        result = await self.db.execute(
+            select(Conversation).where(Conversation.id == conversation_id)
+        )
+        conv = result.scalar_one()
+        messages_result = await self.db.execute(
+            select(Message)
+            .where(Message.conversation_id == conversation_id)
+            .where(Message.id < before_id)
+            .order_by(Message.id.desc())
+            .limit(20)
+        )
+        msgs = list(reversed(messages_result.scalars().all()))
+        context: list[LLMMessage] = []
+        if conv.system_prompt:
+            context.append(LLMMessage(role="system", content=conv.system_prompt))
+        context.extend(LLMMessage(role=m.role, content=m.content) for m in msgs)
+        return context
 
     # ---------- 取消标志 ----------
 

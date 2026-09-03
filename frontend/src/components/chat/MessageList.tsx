@@ -4,7 +4,12 @@ import type { Message } from '../../types'
 import { useChatStore } from '../../stores/chatStore'
 import MessageBubble from './MessageBubble'
 
-export default function MessageList({ messages }: { messages: Message[] }) {
+interface Props {
+  messages: Message[]
+  conversationId: number
+}
+
+export default function MessageList({ messages, conversationId }: Props) {
   const isStreaming = useChatStore((s) => s.isStreaming)
   const streamingContent = useChatStore((s) => s.streamingContent)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -15,14 +20,7 @@ export default function MessageList({ messages }: { messages: Message[] }) {
 
   if (messages.length === 0 && !isStreaming) {
     return (
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <Empty description="暂无消息" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       </div>
     )
@@ -31,18 +29,15 @@ export default function MessageList({ messages }: { messages: Message[] }) {
   return (
     <div style={{ flex: 1, overflow: 'auto', padding: '12px 0' }}>
       {messages.map((m) => (
-        <MessageBubble key={m.id} message={m} />
+        <MessageBubble key={m.id} message={m} conversationId={conversationId} />
       ))}
       {isStreaming && streamingContent && (
         <MessageBubble
           message={{
-            id: -1,
-            role: 'assistant',
-            content: streamingContent,
-            tokens: 0,
-            parent_message_id: null,
-            created_at: new Date().toISOString(),
+            id: -1, role: 'assistant', content: streamingContent,
+            tokens: 0, parent_message_id: null, created_at: new Date().toISOString(),
           }}
+          conversationId={conversationId}
           streaming
         />
       )}

@@ -1,26 +1,26 @@
 import { create } from 'zustand'
 import type { Conversation, Message } from '../types'
 import * as chatApi from '../services/chatApi'
+import { streamSSE } from '../utils/sse-stream'
 
 interface ChatState {
   conversations: Conversation[]
   currentId: number | null
   messagesMap: Record<number, Message[]>
-  // 流式状态
   isStreaming: boolean
   streamingContent: string
-  // 会话操作
   loadConversations: () => Promise<void>
   selectConversation: (id: number) => Promise<void>
   createConversation: (modelProvider: string) => Promise<void>
   renameConversation: (id: number, title: string) => Promise<void>
   deleteConversation: (id: number) => Promise<void>
   setMessages: (conversationId: number, messages: Message[]) => void
-  // 流式操作
   startStreaming: (conversationId: number, userMessage: Message) => void
   appendToken: (token: string) => void
   finishStreaming: (conversationId: number, assistantMessage: Message) => void
   stopStreaming: () => void
+  regenerateMessage: (conversationId: number, messageId: number) => Promise<void>
+  editMessage: (conversationId: number, messageId: number, newContent: string) => Promise<void>
 }
 
 export const useChatStore = create<ChatState>()((set, get) => ({
@@ -98,6 +98,44 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       },
     })),
 
-  stopStreaming: () =>
-    set({ isStreaming: false, streamingContent: '' }),
+  stopStreaming: () => set({ isStreaming: false, streamingContent: '' }),
+
+  regenerateMessage: async (conversationId, messageId) => {
+    set({ isStreaming: true, streamingContent: '' })
+    await streamSSE(
+      `/api/v1/conversations/${conversationId}/messages/${messageId}/regenerate`,
+      {},
+      {
+        onToken: (t) => get().appendToken(t),
+        onDone: (data) =>
+          get().finishStreaming(conversationId, {
+            id: data.message_id, role: 'assistant', content: data.content,
+            tokens: data.tokens, parent_message_id: messageId, created_at: new Date().toISOString(),
+          }),
+        onError: () => get().stopStreaming(),
+      },
+    )
+  },
+
+  editMessage: async (conversationId, messageId, newContent) => {
+    // 乐观添加编辑后的用户消息
+    const userMsg: Message = {
+      id: Date.now(), role: 'user', content: newContent,
+      tokens: 0, parent_message_id: messageId, created_at: new Date().toISOString(),
+    }
+    get().startStreaming(conversationId, userMsg)
+    await streamSSE(
+      `/api/v1/conversations/${conversationId}/messages/${messageId}/edit`,
+      { content: newContent },
+      {
+        onToken: (t) => get().appendToken(t),
+        onDone: (data) =>
+          get().finishStreaming(conversationId, {
+            id: data.message_id, role: 'assistant', content: data.content,
+            tokens: data.tokens, parent_message_id: null, created_at: new Date().toISOString(),
+          }),
+        onError: () => get().stopStreaming(),
+      },
+    )
+  },
 }))

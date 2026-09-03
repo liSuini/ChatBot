@@ -11,7 +11,6 @@ interface Props {
 export default function ChatWindow({ conversation, messages }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* 标题栏 */}
       <div
         style={{
           padding: '8px 0 12px',
@@ -25,10 +24,8 @@ export default function ChatWindow({ conversation, messages }: Props) {
         <Tag color="blue">{conversation.model_provider}</Tag>
       </div>
 
-      {/* 消息列表 */}
-      <MessageList messages={messages} />
+      <MessageList messages={messages} conversationId={conversation.id} />
 
-      {/* 输入区 */}
       <InputArea conversationId={conversation.id} />
     </div>
   )

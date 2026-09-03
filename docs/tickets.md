@@ -162,16 +162,16 @@ T01 (骨架+DB)
 
 **Blocked by:** T05
 
-**Status:** pending (等待 T05 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现重新生成端点 (POST /conversations/{cid}/messages/{id}/regenerate，复用原 user 消息，新 assistant 消息 parent 指向旧 assistant)
-- [ ] 后端: 实现编辑重发逻辑 (新 user 消息 parent_message_id 指向原 user 消息，重新生成 AI 回复)
-- [ ] 后端: 测试 — 重新生成 parent_message_id 正确、编辑重发 parent 关联正确
-- [ ] 前端: MessageBubble AI 消息下方添加"重新生成"按钮
-- [ ] 前端: MessageBubble 用户消息添加"编辑"功能 (点击变输入框，编辑后发送触发重发)
-- [ ] 前端: 停止按钮连接 useSSE.stop() + 后端 /stop 端点
-- [ ] 前端: 重新生成/编辑重发期间输入框禁用
-- [ ] 验证: 浏览器中 停止生成→重新生成→编辑消息重发，历史版本保留
+- [x] 后端: 实现重新生成端点 (POST /conversations/{cid}/messages/{id}/regenerate，复用原 user 消息，新 assistant 消息 parent 指向旧 assistant)
+- [x] 后端: 实现编辑重发逻辑 (新 user 消息 parent_message_id 指向原 user 消息，重新生成 AI 回复)
+- [x] 后端: 测试 — 重新生成 parent_message_id 正确、编辑重发 parent 关联正确 (7/7 通过，全量回归 56/56)
+- [x] 前端: MessageBubble AI 消息下方添加"重新生成"按钮
+- [x] 前端: MessageBubble 用户消息添加"编辑"功能 (点击变输入框，编辑后发送触发重发)
+- [x] 前端: 停止按钮连接 useSSE.stop() + 后端 /stop 端点
+- [x] 前端: 重新生成/编辑重发期间输入框禁用 (isStreaming 状态控制)
+- [x] 验证: 浏览器中 停止生成→重新生成→编辑消息重发，历史版本保留 (DB 确认 message id=3 parent_message_id=2)
 
 ---
 
