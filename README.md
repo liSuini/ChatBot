@@ -187,10 +187,87 @@ npm run dev    # 启动在 http://localhost:5173
 | `DEFAULT_LLM_PROVIDER` | `mock` | 默认模型（mock=测试用/openai/xingchen） |
 | `XINGCHEN_API_KEY` | 空 | 星辰 API Key |
 | `XINGCHEN_BASE_URL` | 空 | 星辰 API 地址 |
+| `XINGCHEN_MODEL` | `xingchen-pro` | 星辰对话模型名 |
+| `XINGCHEN_EMBED_MODEL` | `xingchen-embedding` | 星辰嵌入模型名 |
 | `OPENAI_API_KEY` | 空 | OpenAI API Key |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI API 地址 |
+| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI 对话模型名 |
+| `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | OpenAI 嵌入模型名 |
 
 > 使用 `mock` 模式时，AI 固定回复"你好世界"，适合测试和演示。要使用真实 AI，配置对应 Provider 的 API Key。
+
+---
+
+## 模型配置指南
+
+系统支持 3 个 LLM Provider，通过 `.env` 配置切换。配置好 API Key 后，前端新建会话时会自动显示可用的模型下拉框。
+
+### 支持的 Provider
+
+| Provider | 名称 | 说明 |
+|----------|------|------|
+| `mock` | Mock（测试） | 不调用外部 API，固定回复"你好世界" |
+| `xingchen` | 星辰大模型 | 走 OpenAI 兼容协议 |
+| `openai` | OpenAI | 官方 API，兼容所有 OpenAI 协议的模型 |
+
+### 配置方法
+
+编辑 `.env` 文件（Docker 部署在项目根目录，本地开发在 `backend/` 目录），按需选择以下一种配置：
+
+#### 方式一：使用 OpenAI
+
+```env
+DEFAULT_LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-你的key
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_EMBED_MODEL=text-embedding-3-small
+```
+
+#### 方式二：使用星辰大模型
+
+```env
+DEFAULT_LLM_PROVIDER=xingchen
+XINGCHEN_API_KEY=你的key
+XINGCHEN_BASE_URL=https://your-xingchen-endpoint/v1
+XINGCHEN_MODEL=xingchen-pro
+XINGCHEN_EMBED_MODEL=xingchen-embedding
+```
+
+#### 方式三：兼容其他 OpenAI 协议模型（DeepSeek / 通义千问 / Moonshot 等）
+
+填到 `openai` 配置项，修改 `base_url` 和模型名即可：
+
+```env
+DEFAULT_LLM_PROVIDER=openai
+OPENAI_API_KEY=你的key
+OPENAI_BASE_URL=https://api.deepseek.com/v1
+OPENAI_MODEL=deepseek-chat
+OPENAI_EMBED_MODEL=text-embedding-3-small
+```
+
+> **嵌入模型**（`*_EMBED_MODEL`）用于文档 RAG 向量化，必须支持 1536 维输出。如果嵌入维度不一致，文档上传和 RAG 检索会失败。不使用 RAG 功能时可忽略。
+
+### 应用配置
+
+修改 `.env` 后需重启后端服务使配置生效：
+
+```bash
+# Docker 部署
+docker compose restart backend
+
+# 本地开发：Ctrl+C 停止 uvicorn 后重新运行
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8010
+```
+
+### 前端使用
+
+1. 配置好 API Key 并重启后端后，打开聊天页面
+2. 点击左侧「新建对话」
+3. 在弹出的模型下拉框中选择已配置的模型
+4. 开始对话
+
+> **注意**：会话创建后模型绑定不可更改。如需切换模型，请新建会话。`mock` 模型不需要任何 API Key，适合快速测试系统功能。
 
 ---
 
