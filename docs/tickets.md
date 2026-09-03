@@ -245,15 +245,17 @@ T01 (骨架+DB)
 
 **Blocked by:** T05, T09
 
-**Status:** pending (等待 T05, T09 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 创建 `backend/Dockerfile` (python:3.12-slim + uv + 迁移 + uvicorn 启动)
-- [ ] 创建 `frontend/Dockerfile` (node:20 build + nginx:alpine 静态服务)
-- [ ] 创建 `frontend/nginx.conf` (静态资源 + /api/ 反代 + SSE 关闭 buffering + proxy_read_timeout 300s)
-- [ ] 创建 `docker-compose.yml` (mysql 9.0 + backend + frontend 三服务 + 数据卷 + 依赖关系)
-- [ ] 创建 `.env.example` (全部环境变量模板)
-- [ ] 后端 Dockerfile 中 `alembic upgrade head` 自动迁移
-- [ ] 验证: `docker compose up --build` → http://localhost 全链路可用 (注册→对话→RAG→停止→重生成)
+- [x] 创建 `backend/Dockerfile` (python:3.12-slim + uv sync --no-dev + alembic upgrade head + uvicorn :8010)
+- [x] 创建 `backend/.dockerignore` (排除 .venv/tests/.env)
+- [x] 创建 `frontend/Dockerfile` (node:20-alpine build + nginx:alpine 静态服务，多阶段构建)
+- [x] 创建 `frontend/.dockerignore` (排除 node_modules/dist)
+- [x] 创建 `frontend/nginx.conf` (SPA try_files 回退 + /health + /api/ 反代 + SSE proxy_buffering off + proxy_read_timeout 300s + X-Accel-Buffering no)
+- [x] 创建 `docker-compose.yml` (mysql 9.0 healthcheck + backend depends_on healthy + frontend port 80 + 数据卷 mysql_data/uploads)
+- [x] 创建 `.env.example` (MySQL/JWT/LLM 全部环境变量模板)
+- [x] 后端 Dockerfile 中 `alembic upgrade head` 自动迁移 (容器启动时执行)
+- [x] 验证: `docker compose up --build` → http://localhost 全链路可用 — /health 返回 {status:ok}，注册/登录/me 全通过，SSE 流式 (start→token→done "你好世界") 通过 nginx 正常输出
 
 ---
 
@@ -263,16 +265,16 @@ T01 (骨架+DB)
 
 **Blocked by:** T10
 
-**Status:** pending (等待 T10 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 后端: E2E 测试 — 注册→登录→创建会话→发消息→收SSE→停止→重生成→编辑重发→上传文档→RAG对话→删除会话→删除文档
-- [ ] 前端: 网络错误时显示重试按钮
-- [ ] 前端: token 过期自动跳登录页 (Axios 401 拦截)
-- [ ] 前端: 文档处理失败时 status 显示 failed 并提示
-- [ ] 前端: 后端 429 限流时提示"请求过于频繁，请稍候"
-- [ ] 前端: 流式接收时自动滚动到底部，用户手动上滚时不强制跳回
-- [ ] 前端: InputArea 自适应高度 + 最大高度限制 (200px后内部滚动)
-- [ ] 前端: 删除操作统一确认对话框
-- [ ] 前端: 空状态提示 (无会话/无消息/无文档)
-- [ ] 前端: 加载骨架屏 (会话列表加载中、消息历史加载中)
-- [ ] 验证: 完整流程无报错，错误场景有友好提示，交互流畅
+- [x] 后端: E2E 测试 — 注册→登录→创建会话→发消息→收SSE→停止→重生成→编辑重发→上传文档→RAG对话→删除会话→删除文档 (3/3 通过，全量回归 71/71)
+- [x] 前端: 网络错误时显示重试按钮 (ConversationList 加载失败 → Empty + 重试按钮)
+- [x] 前端: token 过期自动跳登录页 (Axios 401 拦截 — 已在 T02 实现，保持)
+- [x] 前端: 文档处理失败时 status 显示 failed 并提示 (Documents.tsx Tag 显示"失败"，已有)
+- [x] 前端: 后端 429 限流时提示"请求过于频繁，请稍候" (api.ts 拦截器 + message.warning)
+- [x] 前端: 流式接收时自动滚动到底部，用户手动上滚时不强制跳回 (MessageList 滚动检测 + userScrolledRef)
+- [x] 前端: InputArea 自适应高度 + 最大高度限制 (autoSize maxRows:6 ≈192px < 200px，已有)
+- [x] 前端: 删除操作统一确认对话框 (ConversationItem 改用 Modal.confirm 替换 window.confirm)
+- [x] 前端: 空状态提示 (无会话/无消息/无文档 — Empty 组件已覆盖)
+- [x] 前端: 加载骨架屏 (ConversationList 骨架屏 + MessageList 消息加载骨架屏)
+- [x] 验证: 前端 TypeScript 编译 0 错误 + 构建 3392 模块通过 + 后端 71/71 测试通过

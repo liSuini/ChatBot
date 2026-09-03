@@ -9,6 +9,7 @@ interface ChatState {
   messagesMap: Record<number, Message[]>
   isStreaming: boolean
   streamingContent: string
+  loadingMessages: boolean
   loadConversations: () => Promise<void>
   selectConversation: (id: number) => Promise<void>
   createConversation: (modelProvider: string) => Promise<void>
@@ -29,6 +30,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   messagesMap: {},
   isStreaming: false,
   streamingContent: '',
+  loadingMessages: false,
 
   loadConversations: async () => {
     const conversations = await chatApi.listConversations()
@@ -38,8 +40,9 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   selectConversation: async (id) => {
     set({ currentId: id })
     if (get().messagesMap[id] === undefined) {
+      set({ loadingMessages: true })
       const detail = await chatApi.getConversation(id)
-      set((s) => ({ messagesMap: { ...s.messagesMap, [id]: detail.messages ?? [] } }))
+      set((s) => ({ messagesMap: { ...s.messagesMap, [id]: detail.messages ?? [] }, loadingMessages: false }))
     }
   },
 

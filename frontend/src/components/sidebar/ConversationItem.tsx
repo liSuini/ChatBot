@@ -1,4 +1,4 @@
-import { Button, Dropdown, Input } from 'antd'
+import { Button, Dropdown, Input, Modal } from 'antd'
 import { useState } from 'react'
 
 interface Props {
@@ -24,10 +24,15 @@ export default function ConversationItem({ title, active, onClick, onRename, onD
     setRenaming(false)
   }
 
-  const handleDelete = () => {
-    if (window.confirm(`确定删除「${title}」吗？该会话的全部消息将被删除。`)) {
-      onDelete()
-    }
+  const confirmDelete = () => {
+    Modal.confirm({
+      title: `删除「${title}」？`,
+      content: '该会话的全部消息将被删除',
+      okText: '删除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: () => onDelete(),
+    })
   }
 
   if (renaming) {
@@ -79,7 +84,7 @@ export default function ConversationItem({ title, active, onClick, onRename, onD
           onClick: ({ key, domEvent }) => {
             domEvent.stopPropagation()
             if (key === 'rename') startRename()
-            else handleDelete()
+            else if (key === 'delete') confirmDelete()
           },
         }}
         trigger={['click']}

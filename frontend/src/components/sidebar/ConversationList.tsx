@@ -1,5 +1,6 @@
-import { Button, Empty } from 'antd'
-import { useEffect } from 'react'
+import { Button, Empty, Skeleton } from 'antd'
+import { useEffect, useState } from 'react'
+import { ReloadOutlined } from '@ant-design/icons'
 import { useChatStore } from '../../stores/chatStore'
 import { useSettingsStore } from '../../stores/settingsStore'
 import ConversationItem from './ConversationItem'
@@ -13,9 +14,23 @@ export default function ConversationList() {
   const renameConversation = useChatStore((s) => s.renameConversation)
   const deleteConversation = useChatStore((s) => s.deleteConversation)
   const provider = useSettingsStore((s) => s.provider)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  const load = async () => {
+    setLoading(true)
+    setError(false)
+    try {
+      await loadConversations()
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    loadConversations()
+    load()
   }, [loadConversations])
 
   return (
@@ -28,7 +43,16 @@ export default function ConversationList() {
       >
         新建对话
       </Button>
-      {conversations.length === 0 ? (
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 4 }} />
+      ) : error ? (
+        <div style={{ textAlign: 'center', padding: 16 }}>
+          <Empty description="加载失败" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Button size="small" icon={<ReloadOutlined />} onClick={load} style={{ marginTop: 8 }}>
+            重试
+          </Button>
+        </div>
+      ) : conversations.length === 0 ? (
         <Empty description="暂无会话" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         conversations.map((c) => (
