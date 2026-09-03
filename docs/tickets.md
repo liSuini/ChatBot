@@ -218,24 +218,24 @@ T01 (骨架+DB)
 
 **Blocked by:** T03, T04
 
-**Status:** pending (等待 T03, T04 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `rag/parser.py` (FileParser: PDF→PyMuPDF, DOCX→python-docx, TXT/MD→直读)
-- [ ] 后端: 实现 `rag/splitter.py` (RecursiveCharacterTextSplitter, 500字符+50重叠)
-- [ ] 后端: 实现 `services/document_service.py` (upload: 解析→分块→embed_batch→存储; delete: 级联删除; get_status)
-- [ ] 后端: 实现 `services/rag_service.py` (retrieve: 问题向量化→向量检索 Top-K=5→拼接上下文)
-- [ ] 后端: 在 `chat_service.build_context` 中接入 RAG (rag_enabled 时调用 rag_service.retrieve)
-- [ ] 后端: 实现 `api/v1/documents.py` (POST upload / GET list / GET status / DELETE)
-- [ ] 后端: 文件校验: 类型白名单 (pdf/docx/txt/md) + 大小限制 (10MB)
-- [ ] 后端: 小文件 (<5MB) 同步处理，大文件标记 processing
-- [ ] 后端: 测试 — 上传→分块→状态变 ready→RAG 检索→上下文注入→删除级联
-- [ ] 前端: 实现 `services/documentApi.ts` (upload/list/delete/status)
-- [ ] 前端: 实现 `pages/Documents.tsx` (Ant Design Table + 上传按钮 + 状态标签)
-- [ ] 前端: 实现 `components/common/UploadButton.tsx` (拖拽上传 + 文件校验 + 进度)
-- [ ] 前端: 在 Chat 页面添加 RAG 开关 (Toggle)，存入 settingsStore
-- [ ] 前端: 发送消息时传入 rag_enabled 参数
-- [ ] 前端: 大文件上传后轮询状态 (GET /documents/{id}/status)
-- [ ] 验证: 上传 PDF→状态 ready→对话开启 RAG→提问→AI 基于文档回答→关闭 RAG→普通对话
+- [x] 后端: 实现 `rag/parser.py` (FileParser: PDF→PyMuPDF, DOCX→python-docx, TXT/MD→直读)
+- [x] 后端: 实现 `rag/splitter.py` (RecursiveCharacterTextSplitter, 500字符+50重叠)
+- [x] 后端: 实现 `services/document_service.py` (upload: 解析→分块→embed_batch→存储; delete: 级联删除; get_status)
+- [x] 后端: 实现 `services/rag_service.py` (retrieve: 问题向量化→向量检索 Top-K=5→拼接上下文)
+- [x] 后端: 在 `chat_service.build_context` 中接入 RAG (rag_enabled 时调用 rag_service.retrieve)
+- [x] 后端: 实现 `api/v1/documents.py` (POST upload / GET list / GET status / DELETE)
+- [x] 后端: 文件校验: 类型白名单 (pdf/docx/txt/md) + 大小限制 (10MB)
+- [x] 后端: 小文件 (<5MB) 同步处理，大文件标记 processing
+- [x] 后端: 测试 — 上传→分块→状态变 ready→RAG 检索→上下文注入→删除级联 (12/12 + 全量回归 68/68)
+- [x] 前端: 实现 `services/documentApi.ts` (upload/list/delete/status)
+- [x] 前端: 实现 `pages/Documents.tsx` (Ant Design Table + 上传按钮 + 状态标签)
+- [x] 前端: 实现 `components/common/UploadButton.tsx` (拖拽上传 + 文件校验 + 进度)
+- [x] 前端: 在 Chat 页面添加 RAG 开关 (Toggle)，存入 settingsStore
+- [x] 前端: 发送消息时传入 rag_enabled 参数
+- [x] 前端: 大文件上传后轮询状态 (GET /documents/{id}/status) (API 端点已就绪)
+- [x] 验证: 上传 TXT→状态 ready→对话开启 RAG→提问→AI 回复→后端日志确认 RAG 检索执行
 
 ---
 

@@ -37,7 +37,7 @@ async def send_message(
 
     # 2. 构建上下文
     conv = await service._get_owned(user.id, conversation_id)
-    context = await service.build_context(conversation_id)
+    context = await service.build_context(conversation_id, user.id, payload.rag_enabled)
     provider = get_provider(conv.model_provider)
 
     # 清除可能残留的取消标志

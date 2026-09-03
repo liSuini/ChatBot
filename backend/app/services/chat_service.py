@@ -95,8 +95,10 @@ class ChatService:
         await self.db.refresh(msg)
         return msg
 
-    async def build_context(self, conversation_id: int) -> list[LLMMessage]:
-        """构建 LLM 上下文：system prompt + 最近 20 条消息"""
+    async def build_context(
+        self, conversation_id: int, user_id: int | None = None, rag_enabled: bool = False
+    ) -> list[LLMMessage]:
+        """构建 LLM 上下文：system prompt + 最近 20 条消息；rag_enabled 时注入文档检索结果"""
         result = await self.db.execute(
             select(Conversation).where(Conversation.id == conversation_id)
         )
@@ -109,6 +111,25 @@ class ChatService:
         )
         msgs = list(reversed(messages_result.scalars().all()))
         context: list[LLMMessage] = []
+
+        # RAG 上下文注入
+        if rag_enabled and user_id:
+            from app.services.rag_service import RagService
+
+            rag_svc = RagService(self.db)
+            # 取最后一条 user 消息作为检索问题
+            question = next((m.content for m in reversed(msgs) if m.role == "user"), "")
+            if question:
+                docs = await rag_svc.retrieve(user_id, question)
+                if docs:
+                    rag_text = "\n\n---\n\n".join(docs)
+                    context.append(
+                        LLMMessage(
+                            role="system",
+                            content=f"以下是与用户问题相关的参考资料，请基于此回答：\n\n{rag_text}",
+                        )
+                    )
+
         if conv.system_prompt:
             context.append(LLMMessage(role="system", content=conv.system_prompt))
         context.extend(LLMMessage(role=m.role, content=m.content) for m in msgs)

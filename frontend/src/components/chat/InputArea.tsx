@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { Input, Button } from 'antd'
 import { SendOutlined, StopOutlined } from '@ant-design/icons'
 import { useChatStore } from '../../stores/chatStore'
+import { useSettingsStore } from '../../stores/settingsStore'
 import { useSSE } from '../../hooks/useSSE'
 import * as chatApi from '../../services/chatApi'
 import type { Message } from '../../types'
@@ -14,6 +15,7 @@ export default function InputArea({ conversationId }: { conversationId: number }
   const appendToken = useChatStore((s) => s.appendToken)
   const finishStreaming = useChatStore((s) => s.finishStreaming)
   const stopStreaming = useChatStore((s) => s.stopStreaming)
+  const ragEnabled = useSettingsStore((s) => s.ragEnabled)
 
   const { stream, stop } = useSSE()
 
@@ -36,7 +38,7 @@ export default function InputArea({ conversationId }: { conversationId: number }
 
     await stream(
       `/api/v1/conversations/${conversationId}/messages`,
-      { content },
+      { content, rag_enabled: ragEnabled },
       {
         onToken: (token) => appendToken(token),
         onDone: (data) => {
@@ -54,7 +56,7 @@ export default function InputArea({ conversationId }: { conversationId: number }
         },
       },
     )
-  }, [value, isStreaming, conversationId, startStreaming, appendToken, finishStreaming, stopStreaming, stream])
+  }, [value, isStreaming, conversationId, startStreaming, appendToken, finishStreaming, stopStreaming, stream, ragEnabled])
 
   const handleStop = useCallback(async () => {
     stop()
