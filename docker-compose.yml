@@ -1,0 +1,52 @@
+services:
+  mysql:
+    image: mysql:9.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-chatbot}
+      MYSQL_USER: ${MYSQL_USER:-chatbot}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-changeme}
+    # 不暴露 3306 到宿主机（本地 MySQL 已占用），容器间通过 Docker 网络通信
+    # 如需宿主机访问数据库，改为 "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: mysql+aiomysql://${MYSQL_USER:-chatbot}:${MYSQL_PASSWORD:-changeme}@mysql:3306/${MYSQL_DATABASE:-chatbot}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-at-least-32-chars}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      DEFAULT_LLM_PROVIDER: ${DEFAULT_LLM_PROVIDER:-mock}
+      XINGCHEN_API_KEY: ${XINGCHEN_API_KEY:-}
+      XINGCHEN_BASE_URL: ${XINGCHEN_BASE_URL:-}
+      XINGCHEN_MODEL: ${XINGCHEN_MODEL:-xingchen-pro}
+      XINGCHEN_EMBED_MODEL: ${XINGCHEN_EMBED_MODEL:-xingchen-embedding}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads:
