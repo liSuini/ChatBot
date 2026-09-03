@@ -27,17 +27,31 @@ async def client():
 
 
 @pytest.fixture
-def client_factory(client):
-    """注册一个新用户并返回携带其 JWT 的客户端 (client, username)"""
+async def client_factory(client):
+    """注册一个新用户并返回携带其 JWT 的**独立**客户端
+
+    每个用户必须持有独立的 AsyncClient，否则后注册的 token 会覆盖先注册的，
+    导致多用户隔离测试失效。创建的客户端在 fixture teardown 时统一关闭。
+    """
+    created: list[AsyncClient] = []
+
     async def _make(username: str, password: str = "testpass123"):
         resp = await client.post(
             "/api/v1/auth/register", json={"username": username, "password": password}
         )
         assert resp.status_code == 200, resp.text
-        client.headers["Authorization"] = f"Bearer {resp.json()['access_token']}"
-        return client
+        user_client = AsyncClient(
+            transport=ASGITransport(app=app),
+            base_url="http://test",
+            headers={"Authorization": f"Bearer {resp.json()['access_token']}"},
+        )
+        created.append(user_client)
+        return user_client
 
-    return _make
+    yield _make
+
+    for uc in created:
+        await uc.aclose()
 
 
 @pytest.fixture

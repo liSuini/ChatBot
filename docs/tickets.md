@@ -114,18 +114,18 @@ T01 (骨架+DB)
 
 **Blocked by:** T02
 
-**Status:** ready-for-agent
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `schemas/conversation.py` (ConversationCreate / ConversationSummary / ConversationDetail)
-- [ ] 后端: 实现 `services/chat_service.py` 会话部分 (create / list / get / rename / delete，全部带 user_id 隔离)
-- [ ] 后端: 实现 `api/v1/conversations.py` (GET/POST/PATCH/DELETE /conversations + GET /conversations/{id} 含消息历史)
-- [ ] 后端: 测试 — 创建/列表/重命名/删除/用户间隔离 (A 不能访问 B 的会话返回 404)
-- [ ] 前端: 实现 `services/chatApi.ts` (会话 CRUD 调用)
-- [ ] 前端: 实现 `stores/chatStore.ts` (conversations / currentId / messagesMap / loadConversations / selectConversation / createConversation / deleteConversation)
-- [ ] 前端: 实现 `components/sidebar/ConversationList.tsx` (新建按钮 + 列表，按 updated_at 倒序)
-- [ ] 前端: 实现 `components/sidebar/ConversationItem.tsx` (标题、重命名编辑、删除确认对话框)
-- [ ] 前端: 在 ChatLayout 中集成侧边栏，切换会话时加载消息历史
-- [ ] 验证: 浏览器中 新建会话→列表显示→重命名→切换→删除→隔离验证
+- [x] 后端: 实现 `schemas/conversation.py` (ConversationCreate / ConversationSummary / ConversationDetail)
+- [x] 后端: 实现 `services/chat_service.py` 会话部分 (create / list / get / rename / delete，全部带 user_id 隔离)
+- [x] 后端: 实现 `api/v1/conversations.py` (GET/POST/PATCH/DELETE /conversations + GET /conversations/{id} 含消息历史)
+- [x] 后端: 测试 — 创建/列表/重命名/删除/用户间隔离 (A 不能访问 B 的会话返回 404)
+- [x] 前端: 实现 `services/chatApi.ts` (会话 CRUD 调用)
+- [x] 前端: 实现 `stores/chatStore.ts` (conversations / currentId / messagesMap / loadConversations / selectConversation / createConversation / deleteConversation)
+- [x] 前端: 实现 `components/sidebar/ConversationList.tsx` (新建按钮 + 列表，按 updated_at 倒序)
+- [x] 前端: 实现 `components/sidebar/ConversationItem.tsx` (标题、重命名编辑、删除确认对话框)
+- [x] 前端: 在 ChatLayout 中集成侧边栏，切换会话时加载消息历史
+- [x] 验证: 浏览器中 新建会话→列表显示→重命名→切换→删除→隔离验证
 
 ---
 
@@ -200,15 +200,15 @@ T01 (骨架+DB)
 
 **Blocked by:** T03
 
-**Status:** pending (等待 T03 完成)
+**Status:** done (2026-09-03)
 
-- [ ] 后端: 实现 `api/v1/llm.py` (GET /providers 返回可用模型列表)
-- [ ] 后端: 测试 — 返回配置的 provider 列表
-- [ ] 前端: 实现 `components/common/ModelSelector.tsx` (Ant Design Select 下拉)
-- [ ] 前端: 实现 `stores/settingsStore.ts` (当前选择的 provider)
-- [ ] 前端: 在 Chat 页面或侧边栏新建会话时展示 ModelSelector
-- [ ] 前端: 创建会话时传入选定的 model_provider
-- [ ] 验证: 切换模型→新建会话→会话绑定正确模型→已有会话模型不变
+- [x] 后端: 实现 `api/v1/llm.py` (GET /providers 返回可用模型列表)
+- [x] 后端: 测试 — 返回配置的 provider 列表
+- [x] 前端: 实现 `components/common/ModelSelector.tsx` (Ant Design Select 下拉)
+- [x] 前端: 实现 `stores/settingsStore.ts` (当前选择的 provider)
+- [x] 前端: 在 Chat 页面或侧边栏新建会话时展示 ModelSelector
+- [x] 前端: 创建会话时传入选定的 model_provider
+- [x] 验证: 切换模型→新建会话→会话绑定正确模型→已有会话模型不变
 
 ---
 
