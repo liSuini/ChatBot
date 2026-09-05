@@ -50,8 +50,9 @@ class DocumentService:
             text = parse_file(file_path, file_type)
             chunks_text = split_text(text) if text else []
 
-            # 向量化分块
-            provider = get_provider(settings.default_llm_provider)
+            # 向量化分块（嵌入可独立于对话模型配置）
+            embed_provider_name = settings.embed_provider or settings.default_llm_provider
+            provider = get_provider(embed_provider_name)
             embeddings: list[list[float]] = []
             if chunks_text:
                 result = await provider.embed_batch(chunks_text)

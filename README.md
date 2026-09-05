@@ -193,8 +193,21 @@ npm run dev    # 启动在 http://localhost:5173
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI API 地址 |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI 对话模型名 |
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | OpenAI 嵌入模型名 |
+| `EMBED_PROVIDER` | 空（跟随对话模型） | 嵌入模型独立配置（见下方说明） |
 
 > 使用 `mock` 模式时，AI 固定回复"你好世界"，适合测试和演示。要使用真实 AI，配置对应 Provider 的 API Key。
+
+### 嵌入模型独立配置
+
+文档上传和 RAG 检索需要调用 Embedding 接口。部分对话模型（如 DeepSeek）**不提供 Embedding 接口**，此时需要单独配置嵌入模型。
+
+| 场景 | 配置 | 效果 |
+|------|------|------|
+| 对话模型支持 Embedding | `EMBED_PROVIDER` 留空 | 跟随 `DEFAULT_LLM_PROVIDER` |
+| DeepSeek 等无 Embedding 接口 | `EMBED_PROVIDER=mock` | 文档可上传，但 RAG 检索返回空（无语义检索） |
+| 对话用 DeepSeek + 真实嵌入 | `EMBED_PROVIDER=openai` 并配置 `OPENAI_API_KEY` | 对话走 DeepSeek，文档向量化走 OpenAI，RAG 正常工作 |
+
+> **当前默认配置**（DeepSeek 对话 + mock 嵌入）：对话正常，文档可上传，但 RAG 开关打开时不会检索文档片段。如需真正的 RAG，请配置一个支持 1536 维 Embedding 的服务。
 
 ---
 

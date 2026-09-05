@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     openai_embed_model: str = "text-embedding-3-small"
 
+    # Embedding（文档向量化用，可独立于对话模型配置）
+    # 默认与 default_llm_provider 相同；若对话模型不支持 Embedding（如 DeepSeek），
+    # 可单独指定为 openai/xingchen，或设为 mock 让文档上传不失败（RAG 检索效果有限）
+    embed_provider: str | None = None
+
     # Rate Limiting
     rate_limit_general: str = "60/minute"
     rate_limit_llm: str = "20/minute"

@@ -32,6 +32,7 @@ services:
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       OPENAI_EMBED_MODEL: ${OPENAI_EMBED_MODEL:-text-embedding-3-small}
+      EMBED_PROVIDER: ${EMBED_PROVIDER:-}
     depends_on:
       mysql:
         condition: service_healthy

@@ -32,8 +32,12 @@ class RagService:
         """检索与问题最相关的 Top-K 文档片段"""
         k = top_k or settings.rag_top_k
 
-        # 1. 问题向量化
-        provider = get_provider(settings.default_llm_provider)
+        # 1. 问题向量化（嵌入可独立于对话模型配置）
+        embed_provider_name = settings.embed_provider or settings.default_llm_provider
+        # mock 嵌入无语义意义，直接返回空
+        if embed_provider_name == "mock":
+            return []
+        provider = get_provider(embed_provider_name)
         embed_result = await provider.embed(question)
         question_vec = embed_result.embedding
 
