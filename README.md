@@ -197,17 +197,81 @@ npm run dev    # 启动在 http://localhost:5173
 
 > 使用 `mock` 模式时，AI 固定回复"你好世界"，适合测试和演示。要使用真实 AI，配置对应 Provider 的 API Key。
 
-### 嵌入模型独立配置
+### 嵌入模型独立配置（RAG 文档向量化）
 
-文档上传和 RAG 检索需要调用 Embedding 接口。部分对话模型（如 DeepSeek）**不提供 Embedding 接口**，此时需要单独配置嵌入模型。
+文档上传和 RAG 检索需要调用 **Embedding 接口**将文本转为向量。部分对话模型（如 DeepSeek）**不提供 Embedding 接口**，此时需要通过 `EMBED_PROVIDER` 单独配置嵌入模型，实现「对话模型」和「嵌入模型」分离。
 
-| 场景 | 配置 | 效果 |
-|------|------|------|
-| 对话模型支持 Embedding | `EMBED_PROVIDER` 留空 | 跟随 `DEFAULT_LLM_PROVIDER` |
-| DeepSeek 等无 Embedding 接口 | `EMBED_PROVIDER=mock` | 文档可上传，但 RAG 检索返回空（无语义检索） |
-| 对话用 DeepSeek + 真实嵌入 | `EMBED_PROVIDER=openai` 并配置 `OPENAI_API_KEY` | 对话走 DeepSeek，文档向量化走 OpenAI，RAG 正常工作 |
+> **核心规则**：`EMBED_PROVIDER` 留空时跟随 `DEFAULT_LLM_PROVIDER`；设置后独立使用。嵌入模型必须支持 **1536 维**输出，否则文档上传会失败。
 
-> **当前默认配置**（DeepSeek 对话 + mock 嵌入）：对话正常，文档可上传，但 RAG 开关打开时不会检索文档片段。如需真正的 RAG，请配置一个支持 1536 维 Embedding 的服务。
+#### 方案一：仅用 mock 嵌入（默认，快速体验）
+
+文档可上传管理，但 RAG 检索不做语义匹配（返回空），适合不需要文档问答的场景：
+
+```env
+DEFAULT_LLM_PROVIDER=openai          # 对话用 DeepSeek
+OPENAI_API_KEY=你的deepseek-key
+OPENAI_BASE_URL=https://api.deepseek.com/v1
+OPENAI_MODEL=deepseek-chat
+EMBED_PROVIDER=mock                  # 嵌入用 mock（不调用外部 API）
+```
+
+#### 方案二：DeepSeek 对话 + OpenAI 嵌入（推荐，RAG 可用）
+
+对话走 DeepSeek，文档向量化走 OpenAI `text-embedding-3-small`：
+
+```env
+DEFAULT_LLM_PROVIDER=openai
+OPENAI_API_KEY=你的OpenAI-key        # 用于嵌入（和对话可以是同一个 key）
+OPENAI_BASE_URL=https://api.deepseek.com/v1
+OPENAI_MODEL=deepseek-chat
+OPENAI_EMBED_MODEL=text-embedding-3-small
+EMBED_PROVIDER=openai                # 嵌入走 OpenAI 官方
+```
+
+> ⚠️ 注意：此配置下 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL` 同时用于对话和嵌入。若对话用 DeepSeek、嵌入用 OpenAI，两者 base_url 不同，需通过以下方式分离：
+
+```env
+DEFAULT_LLM_PROVIDER=openai
+OPENAI_API_KEY=你的OpenAI-key        # OpenAI 的 key（嵌入用）
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini             # 对话模型（若仍想用 DeepSeek 对话，见下方方案四）
+OPENAI_EMBED_MODEL=text-embedding-3-small
+EMBED_PROVIDER=openai
+```
+
+#### 方案三：DeepSeek 对话 + 星辰嵌入
+
+对话走 DeepSeek，文档向量化走星辰大模型：
+
+```env
+DEFAULT_LLM_PROVIDER=openai
+OPENAI_API_KEY=你的deepseek-key
+OPENAI_BASE_URL=https://api.deepseek.com/v1
+OPENAI_MODEL=deepseek-chat
+
+XINGCHEN_API_KEY=你的星辰key
+XINGCHEN_BASE_URL=https://your-xingchen-endpoint/v1
+XINGCHEN_EMBED_MODEL=xingchen-embedding
+EMBED_PROVIDER=xingchen              # 嵌入走星辰
+```
+
+#### 方案四：对话和嵌入用不同 Provider 的 OpenAI 兼容服务
+
+系统当前 `EMBED_PROVIDER` 支持 `mock`、`openai`、`xingchen` 三个值。如果对话和嵌入都是 OpenAI 兼容协议但 base_url 不同（如对话用 DeepSeek、嵌入用智谱），可通过以下方式实现：
+
+由于 `openai` provider 的 base_url 是全局的，对话和嵌入无法用不同的 base_url。如需这种组合，建议：
+- 对话用 DeepSeek（`DEFAULT_LLM_PROVIDER=openai` + deepseek base_url）
+- 嵌入用 mock 或星辰（`EMBED_PROVIDER=mock` 或 `xingchen`）
+
+#### 配置生效
+
+修改 `.env` 后重建后端容器（环境变量变更必须重建，不能仅 restart）：
+
+```bash
+docker compose up -d backend
+```
+
+**验证 RAG 是否生效**：上传一份文档 → 状态变「就绪」→ 聊天页打开 RAG 开关 → 提问文档内容，AI 应能基于文档回答。若回答不涉及文档内容，检查后端日志是否有 Embedding 调用成功记录。
 
 ---
 
