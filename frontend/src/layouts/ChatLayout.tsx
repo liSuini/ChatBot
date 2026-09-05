@@ -1,5 +1,6 @@
 import { Button, Layout } from 'antd'
-import { Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { FileTextOutlined, MessageOutlined } from '@ant-design/icons'
 import ConversationList from '../components/sidebar/ConversationList'
 import ModelSelector from '../components/common/ModelSelector'
 import { useAuthStore } from '../stores/authStore'
@@ -8,9 +9,11 @@ const { Sider, Content, Header } = Layout
 
 export default function ChatLayout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const token = useAuthStore((s) => s.token)
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const isDocuments = location.pathname === '/documents'
 
   // 路由守卫：未登录重定向到登录页
   if (!token) return <Navigate to="/login" replace />
@@ -29,8 +32,22 @@ export default function ChatLayout() {
             <ModelSelector />
           </div>
           <ConversationList />
-          <div style={{ padding: 12, borderTop: '1px solid #f0f0f0' }}>
-            <Button block onClick={() => navigate('/documents')}>
+          <div style={{ padding: 12, borderTop: '1px solid #f0f0f0', display: 'flex', gap: 8 }}>
+            <Button
+              block
+              type={isDocuments ? 'default' : 'primary'}
+              ghost={isDocuments}
+              icon={<MessageOutlined />}
+              onClick={() => navigate('/chat')}
+            >
+              对话
+            </Button>
+            <Button
+              block
+              type={isDocuments ? 'primary' : 'default'}
+              icon={<FileTextOutlined />}
+              onClick={() => navigate('/documents')}
+            >
               文档管理
             </Button>
           </div>

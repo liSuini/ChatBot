@@ -1,11 +1,13 @@
 import { Button, Empty, Skeleton } from 'antd'
 import { useEffect, useState } from 'react'
 import { ReloadOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import { useChatStore } from '../../stores/chatStore'
 import { useSettingsStore } from '../../stores/settingsStore'
 import ConversationItem from './ConversationItem'
 
 export default function ConversationList() {
+  const navigate = useNavigate()
   const conversations = useChatStore((s) => s.conversations)
   const currentId = useChatStore((s) => s.currentId)
   const loadConversations = useChatStore((s) => s.loadConversations)
@@ -33,13 +35,23 @@ export default function ConversationList() {
     load()
   }, [loadConversations])
 
+  const handleSelect = async (id: number) => {
+    await selectConversation(id)
+    navigate('/chat')
+  }
+
+  const handleCreate = async () => {
+    await createConversation(provider)
+    navigate('/chat')
+  }
+
   return (
     <div style={{ flex: 1, overflow: 'auto', padding: '0 8px 8px' }}>
       <Button
         block
         type="primary"
         style={{ marginBottom: 8 }}
-        onClick={() => createConversation(provider)}
+        onClick={handleCreate}
       >
         新建对话
       </Button>
@@ -60,7 +72,7 @@ export default function ConversationList() {
             key={c.id}
             title={c.title}
             active={c.id === currentId}
-            onClick={() => selectConversation(c.id)}
+            onClick={() => handleSelect(c.id)}
             onRename={(title) => renameConversation(c.id, title)}
             onDelete={() => deleteConversation(c.id)}
           />
